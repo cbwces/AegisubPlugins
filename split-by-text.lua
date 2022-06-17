@@ -30,20 +30,20 @@ end
 function request_split_command(split_command, gpu, fade_mode)
     if fade_mode == 'in' then
         if gpu == true then
-            execute_command = string.gsub(split_command, "ffmpeg", "ffmpeg -hwaccel cuda")
-            execute_command = string.gsub(execute_command, "-c copy", "-vf \"fade=t=in:st=0:d=%%f\" -af \"afade=t=in:st=0:d=%%f\" -c:v h264_nvenc")
+            local execute_command = string.gsub(split_command, "ffmpeg", "ffmpeg -hwaccel cuda")
+            local execute_command = string.gsub(execute_command, "-c copy", "-vf \"fade=t=in:st=0:d=%%f\" -af \"afade=t=in:st=0:d=%%f\" -c:v h264_nvenc")
         else
-            execute_command = string.gsub(split_command, "-c copy", "-vf \"fade=t=in:st=0:d=%%f\" -af \"afade=t=in:st=0:d=%%f\" -c copy")
+            local execute_command = string.gsub(split_command, "-c copy", "-vf \"fade=t=in:st=0:d=%%f\" -af \"afade=t=in:st=0:d=%%f\" -c copy")
         end
     elseif fade_mode == 'out' then
         if gpu == true then
-            execute_command = string.gsub(split_command, "ffmpeg", "ffmpeg -hwaccel cuda")
-            execute_command = string.gsub(execute_command, "-c copy", "-vf \"fade=t=out:st=%%f:d=%%f\" -af \"afade=t=out:st=%%f:d=%%f\" -c:v h264_nvenc")
+            local execute_command = string.gsub(split_command, "ffmpeg", "ffmpeg -hwaccel cuda")
+            local execute_command = string.gsub(execute_command, "-c copy", "-vf \"fade=t=out:st=%%f:d=%%f\" -af \"afade=t=out:st=%%f:d=%%f\" -c:v h264_nvenc")
         else
-            execute_command = string.gsub(split_command, "-c copy", "-vf \"fade=t=out:st=%%f:d=%%f\" -af \"afade=t=out:st=%%f:d=%%f\" -c copy")
+            local execute_command = string.gsub(split_command, "-c copy", "-vf \"fade=t=out:st=%%f:d=%%f\" -af \"afade=t=out:st=%%f:d=%%f\" -c copy")
         end
     else
-        execute_command = split_command
+        local execute_command = split_command
     end
     return execute_command
 end
@@ -63,10 +63,10 @@ function execute_split(subtitles, selected_lines)
     if button == false then
         return false
     end
-    save_path = result_table.save_path
-    gpu = result_table.gpu
-    fadein_value = result_table.fadein_value
-    fadeout_value = result_table.fadeout_value
+    local save_path = result_table.save_path
+    local gpu = result_table.gpu
+    local fadein_value = result_table.fadein_value
+    local fadeout_value = result_table.fadeout_value
     local video_file = string.gsub(aegisub.project_properties().video_file, " ", "\\ ")
 
     local split_command = "ffmpeg -y -ss %s -to %s -i %s -c copy /tmp/%d.mp4"
@@ -94,20 +94,20 @@ function execute_split(subtitles, selected_lines)
     local n_split = #selected_lines / 2
     local concat_command = "ffmpeg -y "
     if gpu == true then
-        concat_command = concat_command .. "-hwaccel cuda "
+        local concat_command = concat_command .. "-hwaccel cuda "
     end
     for i=1,#selected_lines,2 do
-        concat_command = concat_command .. string.format("-i /tmp/%d.mp4 ", i)
+        local concat_command = concat_command .. string.format("-i /tmp/%d.mp4 ", i)
     end
-    concat_command = concat_command .. "-filter_complex \""
+    local concat_command = concat_command .. "-filter_complex \""
     for i=0,n_split-1 do
-        concat_command = concat_command .. string.format("[%d:v] [%d:a] ", i, i)
+        local concat_command = concat_command .. string.format("[%d:v] [%d:a] ", i, i)
     end
-    concat_command = concat_command .. string.format("concat=n=%s:v=1:a=1 [v] [a]\" -map \"[v]\" -map \"[a]\" ", n_split)
+    local concat_command = concat_command .. string.format("concat=n=%s:v=1:a=1 [v] [a]\" -map \"[v]\" -map \"[a]\" ", n_split)
     if gpu == true then
-        concat_command = concat_command .. "-c:v h264_nvenc "
+        local concat_command = concat_command .. "-c:v h264_nvenc "
     end
-    concat_command = concat_command .. save_path
+    local concat_command = concat_command .. save_path
     os.execute(concat_command)
     return true
 end
